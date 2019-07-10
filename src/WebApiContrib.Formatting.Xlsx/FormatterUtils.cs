@@ -1,11 +1,11 @@
-﻿using System;
+﻿using SQAD.MTNext.Business.Models.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using WebApiContrib.Formatting.Xlsx.Attributes;
 
-namespace WebApiContrib.Formatting.Xlsx
+namespace SQAD.MTNext.WebApiContrib.Formatting.Xlsx
 {
     public static class FormatterUtils
     {
@@ -54,7 +54,7 @@ namespace WebApiContrib.Formatting.Xlsx
             if (dataMember != null)
                 return dataMember.Order;
 
-            return -1;
+            return 1000;
         }
 
         /// <summary>
@@ -182,6 +182,16 @@ namespace WebApiContrib.Formatting.Xlsx
 
             return (T)value;
         }
+        
+        public static DateTime ConvertFromDateTimeOffset(DateTimeOffset dateTime)
+        {
+            if (dateTime.Offset.Equals(TimeSpan.Zero))
+                return dateTime.UtcDateTime;
+            else if (dateTime.Offset.Equals(TimeZoneInfo.Local.GetUtcOffset(dateTime.DateTime)))
+                return DateTime.SpecifyKind(dateTime.DateTime, DateTimeKind.Local);
+            else
+                return dateTime.DateTime;
+        }
 
         /// <summary>
         /// Determine whether a type is simple (<c>String</c>, <c>Decimal</c>, <c>DateTime</c> etc.)
@@ -195,14 +205,35 @@ namespace WebApiContrib.Formatting.Xlsx
                 type.IsValueType ||
                 type.IsPrimitive ||
                 new Type[] {
+                    typeof(int),
                     typeof(string),
                     typeof(decimal),
                     typeof(DateTime),
                     typeof(DateTimeOffset),
                     typeof(TimeSpan),
-                    typeof(Guid)
+                    typeof(Guid),
+                    typeof(object),
+                    //take nullable types into consideration
+                    typeof(int?),
+                    typeof(decimal?),
+                    typeof(DateTime?),
+                    typeof(DateTimeOffset?),
+                    typeof(TimeSpan?),
+                    typeof(Guid?),
                 }.Contains(type) ||
                 Convert.GetTypeCode(type) != TypeCode.Object;
+        }
+
+        public  static bool IsExcelSupportedType(object expression)
+        {
+            return expression is String
+                || expression is Int16
+                || expression is Int32
+                || expression is Int64
+                || expression is Decimal
+                || expression is Single
+                || expression is Double
+                || expression is DateTime;
         }
 
     }

@@ -1,15 +1,19 @@
-﻿using OfficeOpenXml.Style;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Security.Permissions;
 using System.Threading.Tasks;
-using util = WebApiContrib.Formatting.Xlsx.FormatterUtils;
-using WebApiContrib.Formatting.Xlsx.Attributes;
-using WebApiContrib.Formatting.Xlsx.Serialisation;
+using OfficeOpenXml.Style;
+using SQAD.MTNext.Business.Models.Attributes;
+using SQAD.MTNext.Interfaces.WebApiContrib.Formatting.Xlsx.Interfaces;
+using SQAD.MTNext.Services.Repositories.Export;
+using SQAD.MTNext.WebApiContrib.Formatting.Xlsx.Serialisation.Base;
+using SQAD.MTNext.WebApiContrib.Formatting.Xlsx.Serialisation.Plans;
+using SQAD.MTNext.WebApiContrib.Formatting.Xlsx.Serialisation.Views.Formatted;
+using SQAD.MTNext.WebApiContrib.Formatting.Xlsx.Serialisation.Views.Unformatted;
 
-namespace WebApiContrib.Formatting.Xlsx
+namespace SQAD.MTNext.WebApiContrib.Formatting.Xlsx
 {
 
     /// <summary>
@@ -17,6 +21,7 @@ namespace WebApiContrib.Formatting.Xlsx
     /// </summary>
     public class XlsxMediaTypeFormatter : MediaTypeFormatter
     {
+        private readonly SerializerType _serializerType;
 
         #region Properties
 
@@ -55,8 +60,6 @@ namespace WebApiContrib.Formatting.Xlsx
         /// </summary>
         public List<IXlsxSerialiser> Serialisers { get; set; }
 
-        public DefaultXlsxSerialiser DefaultSerializer { get; set; }
-
         #endregion
 
         #region Constructor
@@ -78,7 +81,9 @@ namespace WebApiContrib.Formatting.Xlsx
                                       bool freezeHeader = false,
                                       double? headerHeight = null,
                                       Action<ExcelStyle> cellStyle = null,
-                                      Action<ExcelStyle> headerStyle = null)
+                                      Action<ExcelStyle> headerStyle = null,
+                                      IExportHelpersRepository staticValuesResolver = null,
+                                      SerializerType serializerType = SerializerType.Default)
         {
             SupportedMediaTypes.Clear();
             SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
@@ -91,11 +96,18 @@ namespace WebApiContrib.Formatting.Xlsx
             CellStyle = cellStyle;
             HeaderStyle = headerStyle;
 
-            // Initialise serialisers.
-            Serialisers = new List<IXlsxSerialiser> { new ExpandoSerialiser(),
-                                                      new SimpleTypeXlsxSerialiser() };
+            _serializerType = serializerType;
 
-            DefaultSerializer = new DefaultXlsxSerialiser();
+            // Initialise serialisers.
+            Serialisers = new List<IXlsxSerialiser>
+                          {
+                              new SQADPlanXlsSerialiser(staticValuesResolver),
+                              new SqadFormattedViewXlsxSerializer(),
+                              new SqadUnformattedViewXlsxSerializer(),
+                              new SqadSummaryPlanXlsxSerializer()
+                          };
+
+            //DefaultSerializer = new SqadXlsxSerialiser(staticValuesResolver); //new DefaultXlsxSerialiser();
         }
 
         #endregion
@@ -106,21 +118,12 @@ namespace WebApiContrib.Formatting.Xlsx
                                                       HttpContentHeaders headers,
                                                       MediaTypeHeaderValue mediaType)
         {
-            // Get the raw request URI.
-            string rawUri = System.Web.HttpContext.Current.Request.RawUrl;
 
-            // Remove query string if present.
-            int queryStringIndex = rawUri.IndexOf('?');
-            if (queryStringIndex > -1)
-            {
-                rawUri = rawUri.Substring(0, queryStringIndex);
-            }
-
-            string fileName;
+            string fileName = "data";
 
             // Look for ExcelDocumentAttribute on class.
-            var itemType = util.GetEnumerableItemType(type);
-            var excelDocumentAttribute = util.GetAttribute<ExcelDocumentAttribute>(itemType ?? type);
+            var itemType = FormatterUtils.GetEnumerableItemType(type);
+            var excelDocumentAttribute = FormatterUtils.GetAttribute<ExcelDocumentAttribute>(itemType ?? type);
 
             if (excelDocumentAttribute != null && !string.IsNullOrEmpty(excelDocumentAttribute.FileName))
             {
@@ -129,16 +132,28 @@ namespace WebApiContrib.Formatting.Xlsx
             }
             else
             {
+                // Get the raw request URI.
+                string rawUri = System.Web.HttpContext.Current?.Request?.RawUrl;
+                if (string.IsNullOrEmpty(rawUri) != false)
+                {
+                    // Remove query string if present.
+                    int queryStringIndex = rawUri.IndexOf('?');
+                    if (queryStringIndex > -1)
+                    {
+                        rawUri = rawUri.Substring(0, queryStringIndex);
+                    }
+                }
+
                 // Otherwise, use either the URL file name component or just "data".
                 fileName = System.Web.VirtualPathUtility.GetFileName(rawUri) ?? "data";
             }
 
             // Add XLSX extension if not present.
-            if (!fileName.EndsWith("xlsx", StringComparison.CurrentCultureIgnoreCase)) fileName += ".xlsx";
+            if (!fileName.EndsWith("xlsm", StringComparison.CurrentCultureIgnoreCase)) fileName += ".xlsm";
 
             // Set content disposition to use this file name.
             headers.ContentDisposition = new ContentDispositionHeaderValue("inline")
-                                             { FileName = fileName };
+            { FileName = fileName };
 
             base.SetDefaultContentHeaders(type, headers, mediaType);
         }
@@ -151,79 +166,52 @@ namespace WebApiContrib.Formatting.Xlsx
                                                 System.Net.TransportContext transportContext)
         {
             // Create a document builder.
-            var document = new XlsxDocumentBuilder(writeStream);
+            var document = new SqadXlsxDocumentBuilder(writeStream);
 
-            if (value == null) return document.WriteToStream();
+            if (value == null)
+                return document.WriteToStream();
 
             var valueType = value.GetType();
 
-            // Apply cell styles.
-            if (CellStyle != null) CellStyle(document.Worksheet.Cells.Style);
+
 
             // Get the item type.
-            var itemType = (util.IsSimpleType(valueType))
+            var itemType = (FormatterUtils.IsSimpleType(valueType))
                 ? null
-                : util.GetEnumerableItemType(valueType);
+                : FormatterUtils.GetEnumerableItemType(valueType);
 
             // If a single object was passed, treat it like a list with one value.
             if (itemType == null)
             {
                 itemType = valueType;
-                value = new object[] { value };
+                //value = new object[] { value };
             }
 
             // Used if no other matching serialiser can be found.
-            IXlsxSerialiser serialiser = DefaultSerializer;
+            IXlsxSerialiser serialiser = null;// new SqadXlsxSerialiser(_staticValuesResolver); //DefaultSerializer;
 
             // Determine if a more specific serialiser might apply.
             foreach (var s in Serialisers)
             {
-                if (s.CanSerialiseType(valueType, itemType))
+                if (!s.CanSerialiseType(valueType, itemType) || s.SerializerType != _serializerType)
                 {
-                    serialiser = s;
-                    break;
+                    continue;
                 }
+
+                serialiser = s;
+                break;
             }
 
-            serialiser.Serialise(itemType, value, document);
+            serialiser.Serialise(itemType, value, document, null, null,null);
 
-            // Only format spreadsheet if it has content.
-            if (document.RowCount > 0)
+            if (!document.IsVBA)
             {
-                if (serialiser.IgnoreFormatting)
-                {
-                    // Autofit cells if specified.
-                    if (AutoFit) document.AutoFit();
-                }
-                else FormatDocument(document);
+                content.Headers.ContentDisposition.FileName = content.Headers.ContentDisposition.FileName.Replace("xlsm", "xlsx");
             }
 
             return document.WriteToStream();
         }
 
-        /// <summary>
-        /// Applies custom formatting to a document. (Used if matched serialiser supports formatting.)
-        /// </summary>
-        /// <param name="document">The <c>XlsxDocumentBuilder</c> wrapping the document to format.</param>
-        private void FormatDocument(XlsxDocumentBuilder document)
-        {
-            // Header cell styles
-            if (HeaderStyle != null) HeaderStyle(document.Worksheet.Row(1).Style);
-            if (FreezeHeader) document.Worksheet.View.FreezePanes(2, 1);
-
-            var cells = document.Worksheet.Cells[document.Worksheet.Dimension.Address];
-
-            // Add autofilter and fit to max column width (if requested).
-            if (AutoFilter) cells.AutoFilter = AutoFilter;
-            if (AutoFit) cells.AutoFitColumns();
-
-            // Set header row where specified.
-            if (HeaderHeight.HasValue)
-            {
-                document.Worksheet.Row(1).Height = HeaderHeight.Value;
-                document.Worksheet.Row(1).CustomHeight = true;
-            }
-        }
 
         public override bool CanWriteType(Type type)
         {

@@ -1,11 +1,11 @@
-﻿using System;
+﻿using SQAD.MTNext.Utils.WebApiContrib.Formatting.Xlsx.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WebApiContrib.Formatting.Xlsx.Utils;
 
-namespace WebApiContrib.Formatting.Xlsx.Serialisation
+namespace SQAD.MTNext.Serialisation.WebApiContrib.Formatting.Xlsx.Serialisation
 {
     /// <summary>
     /// Resolves the properties whitelisted by name in an item (default <c>XlsxSerialisableProperties</c>) of the
@@ -40,7 +40,7 @@ namespace WebApiContrib.Formatting.Xlsx.Serialisation
         /// types.)</param>
         /// <remarks>Any names specified in the per-request dictionary that aren't serialisable will be
         /// discarded.</remarks>
-        public override IEnumerable<string> GetSerialisableMemberNames(Type itemType, IEnumerable<object> data)
+        public override IEnumerable<string> GetSerialisableMemberNames(Type itemType, object data)
         {
             var defaultMemberNames = base.GetSerialisableMemberNames(itemType, data);
             var httpContextItems = HttpContextFactory.Current.Items;

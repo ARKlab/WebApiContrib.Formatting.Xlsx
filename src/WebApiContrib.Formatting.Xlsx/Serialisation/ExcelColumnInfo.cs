@@ -1,33 +1,42 @@
-﻿using WebApiContrib.Formatting.Xlsx.Attributes;
+﻿using SQAD.MTNext.Business.Models.Attributes;
+using System;
 
-namespace WebApiContrib.Formatting.Xlsx.Serialisation
+namespace SQAD.MTNext.Serialisation.WebApiContrib.Formatting.Xlsx.Serialisation
 {
     /// <summary>
     /// Formatting information for an Excel column based on attribute values specified on a class.
     /// </summary>
-    public class ExcelColumnInfo
+    public class ExcelColumnInfo : ICloneable
     {
         public string PropertyName { get; set; }
-        public ExcelColumnAttribute ExcelAttribute { get; set; }
+        public ExcelColumnAttribute ExcelColumnAttribute { get; set; }
         public string FormatString { get; set; }
         public string Header { get; set; }
+        public Type PropertyType { get; set; }
+        public bool IsHidden => ExcelColumnAttribute.IsHidden;
 
         public string ExcelNumberFormat
         {
-            get { return ExcelAttribute != null ? ExcelAttribute.NumberFormat : null; }
+            get { return ExcelColumnAttribute != null ? ExcelColumnAttribute.NumberFormat : null; }
         }
 
         public bool IsExcelHeaderDefined
         {
-            get { return ExcelAttribute != null && ExcelAttribute.Header != null; }
+            get { return ExcelColumnAttribute != null && ExcelColumnAttribute.Header != null; }
         }
 
-        public ExcelColumnInfo(string propertyName, ExcelColumnAttribute excelAttribute = null, string formatString = null)
+        public ExcelColumnInfo(string propertyName, Type propType, ExcelColumnAttribute excelAttribute = null, string formatString = null)
         {
             PropertyName = propertyName;
-            ExcelAttribute = excelAttribute;
+            ExcelColumnAttribute = excelAttribute;
             FormatString = formatString;
-            Header = IsExcelHeaderDefined ? ExcelAttribute.Header : propertyName;
+            Header = IsExcelHeaderDefined ? ExcelColumnAttribute.Header : propertyName;
+            PropertyType = propType;
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
     }
 }
