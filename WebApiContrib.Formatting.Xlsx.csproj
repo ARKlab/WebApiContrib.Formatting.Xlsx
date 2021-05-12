@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>
+      <Compile Remove="SQAD.XlsxExportImport.Base\**" />
+      <Compile Remove="SQAD.XlsxExportView\**" />
+      <Compile Remove="src\**" />
+      <EmbeddedResource Remove="SQAD.XlsxExportImport.Base\**" />
+      <EmbeddedResource Remove="SQAD.XlsxExportView\**" />
+      <EmbeddedResource Remove="src\**" />
+      <None Remove="SQAD.XlsxExportImport.Base\**" />
+      <None Remove="SQAD.XlsxExportView\**" />
+      <None Remove="src\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Serialisation\Actuals\SqadActualSheetBuilder.cs" />
+      <Compile Remove="Serialisation\SQADActualsXlsSerialiser.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SQAD.MTNext.Business\SQAD.MTNext.Business.csproj" />
+      <ProjectReference Include="..\SQAD.MTNext.Services.Repositories\SQAD.MTNext.Services.Repositories.csproj" />
+      <ProjectReference Include="SQAD.XlsxExportView\SQAD.XlsxExportView.csproj" />
+    </ItemGroup>
+
+</Project>

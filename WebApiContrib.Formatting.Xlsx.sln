@@ -1,25 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiContrib.Formatting.Xlsx", "src\WebApiContrib.Formatting.Xlsx\WebApiContrib.Formatting.Xlsx.csproj", "{B6A319B2-82A4-41BA-A895-4FC02A0D53EF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiContrib.Formatting.Xlsx.Tests", "test\WebApiContrib.Formatting.Xlsx.Tests\WebApiContrib.Formatting.Xlsx.Tests.csproj", "{91831A5B-8286-466A-8CC5-07A630493D9B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{11B0118B-54A0-4542-BF89-E1B1A4A5B209}"
-	ProjectSection(SolutionItems) = preProject
-		..\README.md = ..\README.md
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiContrib.Formatting.Xlsx", "WebApiContrib.Formatting.Xlsx.csproj", "{95BFDB75-F8A9-42E4-93C7-E57FC91D8CAF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3B2C138C-22AD-4BB9-8CED-0B2DA815CC68} = {3B2C138C-22AD-4BB9-8CED-0B2DA815CC68}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiContrib.Formatting.Xlsx.Sample", "samples\WebApiContrib.Formatting.Xlsx.Sample\WebApiContrib.Formatting.Xlsx.Sample.csproj", "{03A10509-AF42-4AEA-A3AA-D0DD4368B905}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{74359D7E-0112-4C04-A1FA-34504B3B7E48}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQAD.XlsxExportView", "SQAD.XlsxExportView\SQAD.XlsxExportView.csproj", "{3B2C138C-22AD-4BB9-8CED-0B2DA815CC68}"
+	ProjectSection(ProjectDependencies) = postProject
+		{64BC3820-B301-4B41-9458-90A0855675F2} = {64BC3820-B301-4B41-9458-90A0855675F2}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQAD.XlsxExportImport.Base", "SQAD.XlsxExportImport.Base\SQAD.XlsxExportImport.Base.csproj", "{64BC3820-B301-4B41-9458-90A0855675F2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,20 +21,23 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B6A319B2-82A4-41BA-A895-4FC02A0D53EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B6A319B2-82A4-41BA-A895-4FC02A0D53EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B6A319B2-82A4-41BA-A895-4FC02A0D53EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B6A319B2-82A4-41BA-A895-4FC02A0D53EF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{91831A5B-8286-466A-8CC5-07A630493D9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{91831A5B-8286-466A-8CC5-07A630493D9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{91831A5B-8286-466A-8CC5-07A630493D9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{91831A5B-8286-466A-8CC5-07A630493D9B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{03A10509-AF42-4AEA-A3AA-D0DD4368B905}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{03A10509-AF42-4AEA-A3AA-D0DD4368B905}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{03A10509-AF42-4AEA-A3AA-D0DD4368B905}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{03A10509-AF42-4AEA-A3AA-D0DD4368B905}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95BFDB75-F8A9-42E4-93C7-E57FC91D8CAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95BFDB75-F8A9-42E4-93C7-E57FC91D8CAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95BFDB75-F8A9-42E4-93C7-E57FC91D8CAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95BFDB75-F8A9-42E4-93C7-E57FC91D8CAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B2C138C-22AD-4BB9-8CED-0B2DA815CC68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B2C138C-22AD-4BB9-8CED-0B2DA815CC68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B2C138C-22AD-4BB9-8CED-0B2DA815CC68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B2C138C-22AD-4BB9-8CED-0B2DA815CC68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64BC3820-B301-4B41-9458-90A0855675F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64BC3820-B301-4B41-9458-90A0855675F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64BC3820-B301-4B41-9458-90A0855675F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64BC3820-B301-4B41-9458-90A0855675F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E14473BD-7AB7-4F7D-8A0E-1916D8468590}
 	EndGlobalSection
 EndGlobal
